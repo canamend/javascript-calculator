@@ -2,29 +2,29 @@ const calculator = document.querySelector('#calculator');
 const domDisplayedValue = document.querySelector('#displayedValue');
 let txt = document.createTextNode('');
 domDisplayedValue.appendChild(txt);
-let firstNumber, secondNumber, operator, displayedValue = '';
+let displayedValue = '';
 
-const add = () => firstNumber + secondNumber;
+const add = (firstNumber, secondNumber) => +firstNumber + +secondNumber;
 
-const substract = () => firstNumber - secondNumber;
+const substract = (firstNumber, secondNumber) => firstNumber - secondNumber;
 
-const multiply = () =>  firstNumber * secondNumber;
+const multiply = (firstNumber, secondNumber) =>  firstNumber * secondNumber;
 
-const divide = () => firstNumber / secondNumber;
+const divide = (firstNumber, secondNumber) => firstNumber / secondNumber;
 
-const operate = (operator) => {
+const operate = (operator, firstNumber, secondNumber) => {
   switch (operator) {
     case '+':
-      return `${firstNumber} + ${secondNumber} = ${add()}`;
+      return add(firstNumber, secondNumber);
 
     case '-':
-      return `${firstNumber} - ${secondNumber} = ${substract()}`;
+      return substract(firstNumber, secondNumber);
     
     case '*':
-      return `${firstNumber} * ${secondNumber} = ${ multiply()}`;
+      return multiply(firstNumber, secondNumber);
 
     case '/':
-      return `${firstNumber} / ${secondNumber} = ${divide()}`;
+      return divide(firstNumber, secondNumber);
 
     default:
       return 'Operation not implemented yet';
@@ -35,15 +35,24 @@ const catchClickedValue = (event) => {
   let value = event.target.value;
   switch (value) {
     case 'Clear':
-      
+      updateDisplayValue('');
       break;
     case '=':
+      let operator = getOperator(displayedValue);
+      let operandsArray = displayedValue.split(operator);
+      updateDisplayValue(operate(operator, ...operandsArray));
       break;
     default:
       appendValueToDisplay(value);
-      txt.nodeValue = displayedValue;
+      updateDisplayValue(displayedValue);
       break;
   }
+}
+
+const getOperator = (operation) => {
+  let regExp = /\+|\-|\/|\*/;
+  let operator = operation.search(regExp);
+  return operation[operator];
 }
 
 const appendValueToDisplay = ( value ) => {
@@ -51,13 +60,12 @@ const appendValueToDisplay = ( value ) => {
   displayedValue += value;
 }
 
-firstNumber = 3;
-secondNumber = 5;
-operator = '*';
+const updateDisplayValue = (string) => {
+  displayedValue = string;
+  txt.nodeValue = displayedValue;
+}
 
 const buttons = document.querySelectorAll('.btn');
 buttons.forEach(button => {
   button.addEventListener('click', catchClickedValue);
 });
-
-console.log( operate(operator) );
