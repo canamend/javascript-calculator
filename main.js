@@ -3,7 +3,9 @@ const domDisplayedValue = document.querySelector('#displayedValue');
 let txt = document.createTextNode('');
 domDisplayedValue.appendChild(txt);
 let displayedValue = '';
-let firstNumber, secondNumber, operator;
+let firstNumber, secondNumber, operator = null;
+const regExp = /\+|\-|\/|\*/;
+
 
 const add = () => +firstNumber + +secondNumber;
 
@@ -11,7 +13,10 @@ const substract = () => firstNumber - secondNumber;
 
 const multiply = () =>  firstNumber * secondNumber;
 
-const divide = () => firstNumber / secondNumber;
+const divide = () => {
+  if(secondNumber == 0) return 'Error, the result of a division by zero is undefined'
+  return firstNumber / secondNumber
+};
 
 const operate = () => {
   switch (operator) {
@@ -28,40 +33,56 @@ const operate = () => {
       return divide();
 
     default:
-      return 'Operation not implemented yet';
+      return displayedValue;
   }
 } 
 
 const catchClickedValue = (event) => {
   let value = event.target.value;
-  let regExp = /\+|\-|\/|\*/;
   switch (value) {
     case 'Clear':
       updateDisplayValue('');
       break;
-    case '=':
-      setOperator(regExp);
-      let operandsArray = displayedValue.split(operator);
-      [firstNumber, secondNumber] = operandsArray;
-      updateDisplayValue(operate());
+    case 'Erase':
+      if(displayedValue.length < 1) break;
+      updateDisplayValue(displayedValue.slice(0, -1));
       break;
+    case '=':
+      setOperands();
+      updateDisplayValue(operate().toString());
+      clearValues();
+      break;
+
     default:
-      if( value.match(regExp) ){
-        //TODO: here goes the code to integrate more than one operator
+      if( displayedValue.match(regExp) !== null && regExp.test(value)){
+        setOperands();
+        if(secondNumber == null || firstNumber == null){
+          console.log('entra');
+          return;
+        }else{
+          updateDisplayValue(operate().toString());
+          clearValues();
+        }
       }
-      appendValueToDisplay(value);
-      updateDisplayValue(displayedValue);
+      updateDisplayValue(displayedValue+value);
       break;
   }
 }
 
-const setOperator = (regExp) => {
+const setOperator = () => {
   operator = displayedValue[displayedValue.search(regExp)];
 }
 
-const appendValueToDisplay = ( value ) => {
-  // TODO: Tal vez sea necesario implementar la deteccion de más de un operando
-  displayedValue += value;
+const clearValues = () => {
+  operator = '';
+  firstNumber == null;
+  secondNumber == null;
+}
+
+const setOperands = () => {
+  setOperator();
+  let operandsArray = displayedValue.split(operator);
+  [firstNumber, secondNumber] = operandsArray;
 }
 
 const updateDisplayValue = (string) => {
